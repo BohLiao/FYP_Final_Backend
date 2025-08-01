@@ -29,7 +29,12 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_ORIGIN || "*", // fallback to '*' if not defined
+    credentials: true,
+  })
+);
 app.use(bodyParser.json());
 
 // MySQL connection
@@ -171,7 +176,7 @@ app.post("/resend-otp", (req, res) => {
 // --- upload endpoint ---
 app.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-  const fileUrl = `http://localhost:${port}/uploads/${req.file.filename}`;
+  const fileUrl = `${process.env.API_BASE_URL}/uploads/${req.file.filename}`;
   res.json({ url: fileUrl });
 });
 
@@ -292,5 +297,5 @@ app.get("/groups", (req, res) => {
 
 // --- start server ---
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at ${process.env.API_BASE_URL}`);
 });
